@@ -91,7 +91,7 @@ So you could feel safe and confident that nobody will have access to your secret
 Flow:
 ----
 
-    normal-secret --> Q cube CLI  --> it takes public key from operator/controller ---> then uses this key and convert normal secret to sealed secret.(make it encrypt)
+    normal-secret --> Q cube CLI(kubesealed)  --> it takes public key from operator/controller ---> then uses this key and convert normal secret to sealed secret.(make it encrypt)
 
 # sealed secret template
 
