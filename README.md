@@ -13,14 +13,15 @@ so let's say that we are working witha a kubernetes environment and we need our 
 Problem
 --------------
 
-# secret.example.in.kubernetes
-apiVersion: v1
-data:
-    DB_PASSWORD: cGFzc3dvcmQzMjM=        --> password of database in base64 encoded
-kind: Secret
-metadata:
-    name: database
-    namespace:  default
+#secret.example.in.kubernetes
+    
+    apiVersion: v1
+    data:
+        DB_PASSWORD: cGFzc3dvcmQzMjM=        --> password of database in base64 encoded
+    kind: Secret
+    metadata:
+        name: database
+        namespace:  default
 
 The problem with this is that you could see and example of a secret being created. you could see we have got the DB_PASSWORD which represent the password. We would connect to our database. **Now, you create the secret, what is gonna happen is the password is going to be base64 encoded(remember secrets are not encrypted, it is base64 encoded.) which mean that it is not secret and anybody else can decode it if they get access to your kubernetes manifest**
 
@@ -38,7 +39,6 @@ There is 3 main components that we work with.
 
 -   Operator/controller    there is a sealed secrets operator that you are gonna deploy onto your kubernetes cluster and that going to be responsible for actually decrypting your secrets.
 
-y
 -   Q Cube Seal      you have got CLI tool called **Q Cube Seal** and so what the purpose of this CLI tool is it takes your secret, **and it is the one that does the encrypting**, so the CLI tool encrypts it, and then once the operator/controller sees the encrypted secret, it will then perform the decryption and then pass it off to your containers.
 
 -   Custom Resource Definition(CRD)     so instead of creating regular secrets, you create sealed secrets, which is a CRD within kubernetes, and that how the operator knows when to perform the decryption process within your kubernetes cluster.
@@ -91,28 +91,28 @@ So you could feel safe and confident that nobody will have access to your secret
 Flow:
 ----
 
-normal-secret --> Q cube CLI  --> it takes public key from operator/controller ---> then uses this key and convert normal secret to sealed secret.(make it encrypt)
+    normal-secret --> Q cube CLI  --> it takes public key from operator/controller ---> then uses this key and convert normal secret to sealed secret.(make it encrypt)
 
 # sealed secret template
 
-apiVersion: bitnami.com/v1alpha1
-kind:   SealedSecret
-metadata:
-    name:   database
-    namespace:  mynamespace
-spec:
-    encryptedData:
-        DB_PASSWORD:
-        <SEALED-SECRET-IN-ENCRYPTED-FORM>
-
-Then APPLY:
-
-    kubectl apply ---   > and it will create sealed secret object in kubernetes cluster.. then inside the cluster operator will see a new sealed secret and it will decrypt it by using private key(remember operator hi dono keys create krta ha public deta ha Q CUBE CLI ko sealed secret bny k lye, or jb sealed secret bn kr cluster ma as object ata ha tu isko apni private key sa decrypt kerta ha..) or wo phir isko kubernetes cluster k regular secrets ma rakh dye ga...
-
-    so jb ap cluster ko login kry gye tu ap 
+    apiVersion: bitnami.com/v1alpha1
+    kind:   SealedSecret
+    metadata:
+        name:   database
+        namespace:  mynamespace
+    spec:
+        encryptedData:
+            DB_PASSWORD:
+            <SEALED-SECRET-IN-ENCRYPTED-FORM>
     
-    kubectl get secret ko use kr k secret dekh sakhty hn. phir ap isko as env container ko pass kr sakhty hn. ab y as normal secret jis tarha work kerta ha wasy hi work kry ga...
-
+    Then APPLY:
+    
+        kubectl apply ---   > and it will create sealed secret object in kubernetes cluster.. then inside the cluster operator will see a new sealed secret and it will decrypt it by using private key(remember operator hi dono keys create krta ha public deta ha Q CUBE CLI ko sealed secret bny k lye, or jb sealed secret bn kr cluster ma as object ata ha tu isko apni private key sa decrypt kerta ha..) or wo phir isko kubernetes cluster k regular secrets ma rakh dye ga...
+    
+        so jb ap cluster ko login kry gye tu ap 
+        
+        kubectl get secret ko use kr k secret dekh sakhty hn. phir ap isko as env container ko pass kr sakhty hn. ab y as normal secret jis tarha work kerta ha wasy hi work kry ga...
+    
 
 benefit:
 -------
@@ -122,19 +122,19 @@ jb ap apni manifest ko github repo per upload kry gye tu apka secret encrypted f
 DEMO WORKING WITH SEALED SECRETS
 ---------------------------------
 
-1- First thing:
-
-    deploy the sealed secret operator.. in cluster.. ap y kam **kubectl apply mean manifest" or "helm chart** k through ker sakhty hn. 
-
-    make sure you have helm installed...
-
-    $ helm repo add sealed-secrets https://bitnami-labs.githubs.io/sealed-secrets
-
-    $ helm install my-release sealed-secrets/sealed-secrets  ---> it will install in default namespace, other namespace k lye command ma namespace mention kro...
-
-
-**kube-system namespace ma ap sealed secret operator ka pod running ma dekh sakhty hn..** mean it is deploy successfully...
-
+    1- First thing:
+    
+        deploy the sealed secret operator.. in cluster.. ap y kam **kubectl apply mean manifest" or "helm chart** k through ker sakhty hn. 
+    
+        make sure you have helm installed...
+    
+        $ helm repo add sealed-secrets https://bitnami-labs.githubs.io/sealed-secrets
+    
+        $ helm install my-release sealed-secrets/sealed-secrets  ---> it will install in default namespace, other namespace k lye command ma namespace mention kro...
+    
+    
+    **kube-system namespace ma ap sealed secret operator ka pod running ma dekh sakhty hn..** mean it is deploy successfully...
+    
 Installation of kube sealed CLI
 -------------------------------
 
